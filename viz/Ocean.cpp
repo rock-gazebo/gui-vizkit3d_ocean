@@ -35,6 +35,10 @@ static osg::Vec4f qt2osg(QColor const& color)
 {
     return osg::Vec4f(color.redF(), color.greenF(), color.blueF(), 1.0f);
 }
+static osg::Vec3f qt2osg_color3(QColor const& color)
+{
+    return osg::Vec3f(color.redF(), color.greenF(), color.blueF());
+}
 static osg::Vec2f qt2osg(QVector2D const& v)
 {
     return osg::Vec2f(v.x(), v.y());
@@ -46,13 +50,12 @@ static osg::Vec3f qt2osg(QVector3D const& v)
 
 
 Ocean::Ocean(const OceanParameters& ocean_parameters)
-    : cubeMapDirty(false)
-    , cubeMapPath("vizkit3d_ocean/textures/sky_clear")
-    , lightColor(105, 138, 174)
+    : cubeMapPath("vizkit3d_ocean/textures/sky_clear")
 {
-    surfDirty = ocean_parameters.surfDirty;
     surfEndless = ocean_parameters.surfEndless;
     surfWaveScale = ocean_parameters.surfWaveScale;
+    surfWaveBottomColor = ocean_parameters.surfWaveBottomColor;
+    surfWaveTopColor = ocean_parameters.surfWaveTopColor;
     surfDepth = ocean_parameters.surfDepth;
     surfWindDirection = ocean_parameters.surfWindDirection;
     surfWindSpeed = ocean_parameters.surfWindSpeed;
@@ -64,11 +67,11 @@ Ocean::Ocean(const OceanParameters& ocean_parameters)
     surfFoamBottomHeight = ocean_parameters.surfFoamBottomHeight;
     surfFoamTopHeight = ocean_parameters.surfFoamTopHeight;
 
-    sceneDirty = ocean_parameters.sceneDirty;
     airFogColor = ocean_parameters.airFogColor;
     airFogDensity = ocean_parameters.airFogDensity;
     sunPosition = ocean_parameters.sunPosition;
     sunDiffuseColor = ocean_parameters.sunDiffuseColor;
+    sunColor = ocean_parameters.sunColor;
     uwFogColor = ocean_parameters.uwFogColor;
     uwFogDensity = ocean_parameters.uwFogDensity;
     uwAttenuation = ocean_parameters.uwAttenuation;
@@ -156,9 +159,6 @@ ref_ptr<Node> Ocean::createMainNode()
 
     osgOcean::ShaderManager::instance().enableShaders(true);
 
-    cubeMapDirty = false;
-    surfDirty = false;
-    sceneDirty = false;
     return mainNode;
 }
 
@@ -213,10 +213,12 @@ osgOcean::FFTOceanTechnique* Ocean::createSurface()
                 surfWindSpeed,
                 surfDepth,
                 surfReflectionDamping,
-                surfWaveScale,
+                surfWaveScale / 1e8,
                 surfIsChoppy,
                 surfChoppyFactor,
                 10.f, 256 );
+    surface->setWaveTopColor(qt2osg_color3(surfWaveTopColor));
+    surface->setWaveBottomColor(qt2osg_color3(surfWaveBottomColor));
     return surface;
 }
 
@@ -226,7 +228,7 @@ void Ocean::updateSurface(osgOcean::FFTOceanTechnique* surface, TextureCubeMap* 
     surface->setFoamBottomHeight( surfFoamBottomHeight );
     surface->setFoamTopHeight( surfFoamTopHeight );
     surface->enableCrestFoam(surfCrestFoam);
-    surface->setLightColor(qt2osg(lightColor));
+    surface->setLightColor(qt2osg(sunColor));
     surface->enableEndlessOcean(surfEndless);
 }
 
@@ -266,7 +268,7 @@ void Ocean::updateScene(osgOcean::OceanScene* scene)
 
     scene->setCylinderSize( 1900.f, 4000.f );
 
-    scene->setAboveWaterFog(airFogDensity, qt2osg(airFogColor) );
+    scene->setAboveWaterFog(airFogDensity / 1000, qt2osg(airFogColor) );
     scene->setUnderwaterFog(uwFogDensity, qt2osg(uwFogColor) );
     scene->setUnderwaterDiffuse(qt2osg(uwDiffuseColor));
     scene->setUnderwaterAttenuation(qt2osg(uwAttenuation));
@@ -320,11 +322,118 @@ void Ocean::updateSkyDome(vizkit3d_ocean::SkyDome* dome, OceanScene* scene)
 
 void Ocean::updateMainNode( Node* node )
 {
-	std::cout << "Ocean::updateMainNode" << std::endl;
+    osg::Group* group = dynamic_cast<Group*>(node);
+    osgOcean::OceanScene* scene = dynamic_cast<osgOcean::OceanScene*>(group->getChild(0));
+    scene->setAboveWaterFog(airFogDensity / 1000, qt2osg(airFogColor) );
+
+    FFTOceanTechnique* surface =
+        dynamic_cast<FFTOceanTechnique*>(scene->getOceanTechnique());
+    surface->setLightColor(qt2osg(sunColor));
+    surface->setWaveTopColor(qt2osg_color3(surfWaveTopColor));
+    surface->setWaveBottomColor(qt2osg_color3(surfWaveBottomColor));
+    surface->setFoamBottomHeight( surfFoamBottomHeight );
+    surface->setFoamTopHeight( surfFoamTopHeight );
+    surface->setWaveScaleFactor(surfWaveScale / 1e8);
 }
 
 void Ocean::updateDataIntern(base::Vector3d const& value)
 {
+}
+
+void Ocean::setAirFogColor(QColor const& color)
+{
+    airFogColor = color;
+    emit propertyChanged("airFogColor");
+    setDirty();
+}
+
+QColor Ocean::getAirFogColor() const
+{
+    return airFogColor;
+}
+
+void Ocean::setAirFogDensity(double density)
+{
+    airFogDensity = density;
+    emit propertyChanged("airFogDensity");
+    setDirty();
+}
+
+double Ocean::getAirFogDensity() const
+{
+    return airFogDensity;
+}
+
+void Ocean::setWaveScale(double scale)
+{
+    surfWaveScale = scale;
+    emit propertyChanged("waveScale");
+    setDirty();
+}
+
+double Ocean::getWaveScale() const
+{
+    return surfWaveScale;
+}
+
+void Ocean::setSunColor(QColor const& color)
+{
+    sunColor = color;
+    emit propertyChanged("sunColor");
+    setDirty();
+}
+
+QColor Ocean::getSunColor() const
+{
+    return sunColor;
+}
+
+void Ocean::setWaveTopColor(QColor const& color)
+{
+    surfWaveTopColor = color;
+    emit propertyChanged("waveTopColor");
+    setDirty();
+}
+
+QColor Ocean::getWaveTopColor() const
+{
+    return surfWaveTopColor;
+}
+
+void Ocean::setFoamTopHeight(double height)
+{
+    surfFoamTopHeight = height;
+    emit propertyChanged("foamTopHeight");
+    setDirty();
+}
+
+double Ocean::getFoamTopHeight() const
+{
+    return surfFoamTopHeight;
+}
+
+void Ocean::setFoamBottomHeight(double height)
+{
+    surfFoamBottomHeight = height;
+    emit propertyChanged("foamBottomHeight");
+    setDirty();
+}
+
+double Ocean::getFoamBottomHeight() const
+{
+    return surfFoamBottomHeight;
+}
+
+void Ocean::setWaveBottomColor(QColor const& color)
+{
+    surfWaveBottomColor = color;
+    emit propertyChanged("waveBottomColor");
+    setDirty();
+}
+
+QColor Ocean::getWaveBottomColor() const
+{
+    return surfWaveBottomColor;
 }
 
 VizkitQtPlugin(Ocean)
