@@ -29,9 +29,10 @@ namespace vizkit3d
 struct OceanParameters
 {
     OceanParameters() 
-        : surfDirty(true)
-        , surfEndless(true)
-        , surfWaveScale(1e-7)
+        : surfEndless(true)
+        , surfWaveScale(10)
+        , surfWaveTopColor(QColor(49, 83, 94))
+        , surfWaveBottomColor(QColor(29, 56, 91))
         , surfDepth(1000)
         , surfWindDirection(1, 2)
         , surfWindSpeed(3.0)
@@ -43,13 +44,13 @@ struct OceanParameters
         , surfFoamBottomHeight(2.2)
         , surfFoamTopHeight(2.2)
 
-        , sceneDirty(true)
         , airFogColor(199, 226, 255)
-        , airFogDensity(0.012)
+        , airFogDensity(12)
         , sunPosition(326, 1212, 1275)
         , sunDiffuseColor(191, 191, 191)
+        , sunColor(105, 138, 174)
         , uwFogColor(27, 57, 109)
-        , uwFogDensity(0.02)
+        , uwFogDensity(20)
         , uwAttenuation(0.015, 0.0075, 0.005)
         , uwDiffuseColor(27, 57, 109)
         , glareAttenuation(0.8)
@@ -67,9 +68,10 @@ struct OceanParameters
     }
 
     /// Ocean surface parameters
-    bool      surfDirty;
     bool      surfEndless;
     float     surfWaveScale;
+    QColor    surfWaveTopColor;
+    QColor    surfWaveBottomColor;
     float     surfDepth;
     QVector2D surfWindDirection;
     float     surfWindSpeed;
@@ -82,11 +84,11 @@ struct OceanParameters
     float     surfFoamTopHeight;
 
     /// Ocean scene parameters
-    bool      sceneDirty;
     QColor    airFogColor;
     float     airFogDensity;
     QVector3D sunPosition;
     QColor    sunDiffuseColor;
+    QColor    sunColor;
     QColor    uwFogColor;
     float     uwFogDensity;
     QVector3D uwAttenuation;
@@ -124,6 +126,33 @@ public:
 	explicit Ocean(const OceanParameters& ocean_parameters = OceanParameters());
 	~Ocean();
 
+    Q_PROPERTY(QColor airFogColor     READ getAirFogColor     WRITE setAirFogColor);
+    Q_PROPERTY(double airFogDensity   READ getAirFogDensity   WRITE setAirFogDensity);
+    Q_PROPERTY(double waveScale       READ getWaveScale       WRITE setWaveScale);
+    Q_PROPERTY(QColor waveTopColor    READ getWaveTopColor    WRITE setWaveTopColor);
+    Q_PROPERTY(QColor waveBottomColor READ getWaveBottomColor WRITE setWaveBottomColor);
+    Q_PROPERTY(QColor sunColor        READ getSunColor        WRITE setSunColor);
+    Q_PROPERTY(double foamTopHeight   READ getFoamTopHeight   WRITE setFoamTopHeight);
+    Q_PROPERTY(double foamBottomHeight   READ getFoamBottomHeight   WRITE setFoamBottomHeight);
+
+public slots:
+    void setAirFogColor(QColor const& color);
+    QColor getAirFogColor() const;
+    void setAirFogDensity(double density);
+    double getAirFogDensity() const;
+    void setWaveScale(double scale);
+    double getWaveScale() const;
+    void setWaveTopColor(QColor const& color);
+    QColor getWaveTopColor() const;
+    void setWaveBottomColor(QColor const& color);
+    QColor getWaveBottomColor() const;
+    void setSunColor(QColor const& color);
+    QColor getSunColor() const;
+    void setFoamTopHeight(double height);
+    double getFoamTopHeight() const;
+    void setFoamBottomHeight(double height);
+    double getFoamBottomHeight() const;
+
 protected:
 	virtual osg::ref_ptr<osg::Node> createMainNode();
 	virtual void updateMainNode(osg::Node* node);
@@ -150,15 +179,15 @@ private:
 
         osg::ref_ptr<osg::Group> ref_node;
 
-        bool      cubeMapDirty;
         QString   cubeMapPath;
         osg::ref_ptr<osg::Image> cubeMapImages[6];
         QColor    lightColor;
 
         /// Ocean surface parameters
-        bool      surfDirty;
         bool      surfEndless;
         float     surfWaveScale;
+        QColor    surfWaveTopColor;
+        QColor    surfWaveBottomColor;
         float     surfDepth;
         QVector2D surfWindDirection;
         float     surfWindSpeed;
@@ -171,11 +200,11 @@ private:
         float     surfFoamTopHeight;
 
         /// Ocean scene parameters
-        bool      sceneDirty;
         QColor    airFogColor;
         float     airFogDensity;
         QVector3D sunPosition;
         QColor    sunDiffuseColor;
+        QColor    sunColor;
         QColor    uwFogColor;
         float     uwFogDensity;
         QVector3D uwAttenuation;
