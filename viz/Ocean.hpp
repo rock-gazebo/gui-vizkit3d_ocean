@@ -128,21 +128,36 @@ public:
 	explicit Ocean(const OceanParameters& ocean_parameters = OceanParameters());
 	~Ocean();
 
-    Q_PROPERTY(QColor airFogColor     READ getAirFogColor     WRITE setAirFogColor);
-    Q_PROPERTY(double airFogDensity   READ getAirFogDensity   WRITE setAirFogDensity);
-    Q_PROPERTY(double waveScale       READ getWaveScale       WRITE setWaveScale);
-    Q_PROPERTY(QColor waveTopColor    READ getWaveTopColor    WRITE setWaveTopColor);
-    Q_PROPERTY(QColor waveBottomColor READ getWaveBottomColor WRITE setWaveBottomColor);
-    Q_PROPERTY(QColor sunColor        READ getSunColor        WRITE setSunColor);
-    Q_PROPERTY(double foamTopHeight   READ getFoamTopHeight   WRITE setFoamTopHeight);
-    Q_PROPERTY(double foamBottomHeight   READ getFoamBottomHeight   WRITE setFoamBottomHeight);
-    Q_PROPERTY(double surfaceHeight   READ getSurfaceHeight   WRITE setSurfaceHeight);
+    Q_PROPERTY(QColor airFogColor       READ getAirFogColor      WRITE setAirFogColor);
+    Q_PROPERTY(double airFogDensity     READ getAirFogDensity    WRITE setAirFogDensity);
+    Q_PROPERTY(QColor uwFogColor        READ getUwFogColor       WRITE setUwFogColor);
+    Q_PROPERTY(double uwFogDensity      READ getUwFogDensity     WRITE setUwFogDensity);
+    Q_PROPERTY(QVector3D uwAttenuation  READ getUwAttenuation    WRITE setUwAttenuation);
+    Q_PROPERTY(QColor uwDiffuseColor    READ getUwDiffuseColor   WRITE setUwDiffuseColor);
+    Q_PROPERTY(double glareAttenuation  READ getGlareAttenuation WRITE setGlareAttenuation);
+    Q_PROPERTY(double waveScale         READ getWaveScale        WRITE setWaveScale);
+    Q_PROPERTY(QColor waveTopColor      READ getWaveTopColor     WRITE setWaveTopColor);
+    Q_PROPERTY(QColor waveBottomColor   READ getWaveBottomColor  WRITE setWaveBottomColor);
+    Q_PROPERTY(QColor sunColor          READ getSunColor         WRITE setSunColor);
+    Q_PROPERTY(double foamTopHeight     READ getFoamTopHeight    WRITE setFoamTopHeight);
+    Q_PROPERTY(double foamBottomHeight  READ getFoamBottomHeight WRITE setFoamBottomHeight);
+    Q_PROPERTY(double surfaceHeight     READ getSurfaceHeight    WRITE setSurfaceHeight);
 
 public slots:
     void setAirFogColor(QColor const& color);
     QColor getAirFogColor() const;
     void setAirFogDensity(double density);
     double getAirFogDensity() const;
+    void setUwFogColor(QColor const& color);
+    QColor getUwFogColor() const;
+    void setUwFogDensity(double density);
+    double getUwFogDensity() const;
+    void setUwAttenuation(QVector3D const& attenuation);
+    QVector3D getUwAttenuation() const;
+    void setUwDiffuseColor(QColor const& color);
+    QColor getUwDiffuseColor() const;
+    void setGlareAttenuation(double density);
+    double getGlareAttenuation() const;
     void setWaveScale(double scale);
     double getWaveScale() const;
     void setWaveTopColor(QColor const& color);

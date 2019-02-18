@@ -366,6 +366,66 @@ double Ocean::getAirFogDensity() const
     return airFogDensity;
 }
 
+void Ocean::setUwFogColor(QColor const& color)
+{
+    uwFogColor = color;
+    emit propertyChanged("uwFogColor");
+    setDirty();
+}
+
+QColor Ocean::getUwFogColor() const
+{
+    return uwFogColor;
+}
+
+void Ocean::setUwFogDensity(double density)
+{
+    uwFogDensity = density;
+    emit propertyChanged("uwFogDensity");
+    setDirty();
+}
+
+double Ocean::getUwFogDensity() const
+{
+    return uwFogDensity;
+}
+
+void Ocean::setUwAttenuation(QVector3D const& factors)
+{
+    uwAttenuation = factors;
+    emit propertyChanged("uwAttenuation");
+    setDirty();
+}
+
+QVector3D Ocean::getUwAttenuation() const
+{
+    return uwAttenuation;
+}
+
+void Ocean::setUwDiffuseColor(QColor const& factors)
+{
+    uwDiffuseColor = factors;
+    emit propertyChanged("uwDiffuseColor");
+    setDirty();
+}
+
+QColor Ocean::getUwDiffuseColor() const
+{
+    return uwDiffuseColor;
+}
+
+void Ocean::setGlareAttenuation(double density)
+{
+    glareAttenuation = density;
+    emit propertyChanged("glareAttenuation");
+    setDirty();
+}
+
+double Ocean::getGlareAttenuation() const
+{
+    return glareAttenuation;
+}
+
 void Ocean::setWaveScale(double scale)
 {
     surfWaveScale = scale;
