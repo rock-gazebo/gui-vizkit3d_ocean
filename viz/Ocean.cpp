@@ -66,6 +66,7 @@ Ocean::Ocean(const OceanParameters& ocean_parameters)
     surfCrestFoamHeight = ocean_parameters.surfCrestFoamHeight;
     surfFoamBottomHeight = ocean_parameters.surfFoamBottomHeight;
     surfFoamTopHeight = ocean_parameters.surfFoamTopHeight;
+    surfHeight = ocean_parameters.surfHeight;
 
     airFogColor = ocean_parameters.airFogColor;
     airFogDensity = ocean_parameters.airFogDensity;
@@ -272,6 +273,7 @@ void Ocean::updateScene(osgOcean::OceanScene* scene)
     scene->setUnderwaterFog(uwFogDensity, qt2osg(uwFogColor) );
     scene->setUnderwaterDiffuse(qt2osg(uwDiffuseColor));
     scene->setUnderwaterAttenuation(qt2osg(uwAttenuation));
+    scene->setOceanSurfaceHeight(surfHeight);
 
     Vec3f sunDir = qt2osg(-sunPosition);
     sunDir.normalize();
@@ -315,8 +317,8 @@ vizkit3d_ocean::SkyDome* Ocean::createSkyDome(TextureCubeMap* cubeMap)
 void Ocean::updateSkyDome(vizkit3d_ocean::SkyDome* dome, OceanScene* scene)
 {
     dome->setNodeMask(
-            scene->getReflectedSceneMask() | 
-            scene->getNormalSceneMask()    | 
+            scene->getReflectedSceneMask() |
+            scene->getNormalSceneMask()    |
             scene->getRefractedSceneMask());
 }
 
@@ -324,7 +326,7 @@ void Ocean::updateMainNode( Node* node )
 {
     osg::Group* group = dynamic_cast<Group*>(node);
     osgOcean::OceanScene* scene = dynamic_cast<osgOcean::OceanScene*>(group->getChild(0));
-    scene->setAboveWaterFog(airFogDensity / 1000, qt2osg(airFogColor) );
+    updateScene(scene);
 
     FFTOceanTechnique* surface =
         dynamic_cast<FFTOceanTechnique*>(scene->getOceanTechnique());
@@ -434,6 +436,18 @@ void Ocean::setWaveBottomColor(QColor const& color)
 QColor Ocean::getWaveBottomColor() const
 {
     return surfWaveBottomColor;
+}
+
+double Ocean::getSurfaceHeight() const
+{
+    return surfHeight;
+}
+
+void Ocean::setSurfaceHeight(double height)
+{
+    surfHeight = height;
+    emit propertyChanged("surfaceHeight");
+    setDirty();
 }
 
 VizkitQtPlugin(Ocean)

@@ -28,7 +28,7 @@ namespace vizkit3d
 
 struct OceanParameters
 {
-    OceanParameters() 
+    OceanParameters()
         : surfEndless(true)
         , surfWaveScale(10)
         , surfWaveTopColor(QColor(49, 83, 94))
@@ -43,6 +43,7 @@ struct OceanParameters
         , surfCrestFoamHeight(2.2)
         , surfFoamBottomHeight(2.2)
         , surfFoamTopHeight(2.2)
+        , surfHeight(0)
 
         , airFogColor(199, 226, 255)
         , airFogDensity(12)
@@ -82,6 +83,7 @@ struct OceanParameters
     float     surfCrestFoamHeight;
     float     surfFoamBottomHeight;
     float     surfFoamTopHeight;
+    float     surfHeight;
 
     /// Ocean scene parameters
     QColor    airFogColor;
@@ -134,6 +136,7 @@ public:
     Q_PROPERTY(QColor sunColor        READ getSunColor        WRITE setSunColor);
     Q_PROPERTY(double foamTopHeight   READ getFoamTopHeight   WRITE setFoamTopHeight);
     Q_PROPERTY(double foamBottomHeight   READ getFoamBottomHeight   WRITE setFoamBottomHeight);
+    Q_PROPERTY(double surfaceHeight   READ getSurfaceHeight   WRITE setSurfaceHeight);
 
 public slots:
     void setAirFogColor(QColor const& color);
@@ -152,6 +155,8 @@ public slots:
     double getFoamTopHeight() const;
     void setFoamBottomHeight(double height);
     double getFoamBottomHeight() const;
+    void setSurfaceHeight(double height);
+    double getSurfaceHeight() const;
 
 protected:
 	virtual osg::ref_ptr<osg::Node> createMainNode();
@@ -198,6 +203,7 @@ private:
         float     surfCrestFoamHeight;
         float     surfFoamBottomHeight;
         float     surfFoamTopHeight;
+        float     surfHeight;
 
         /// Ocean scene parameters
         QColor    airFogColor;

@@ -29,6 +29,17 @@ module Vizkit
             confirm 'The waves\'top is softer'
         end
 
+        it "allows to move the water surface" do
+            confirm 'You should be above water'
+            @ocean_viz.setSurfaceHeight(10)
+            @vizkit3d_widget.setCameraEye(10, 10, 2)
+            @vizkit3d_widget.setCameraLookAt(20, 20, 15)
+            confirm 'You should be underwater'
+            @vizkit3d_widget.setCameraEye(10, 10, 12)
+            @vizkit3d_widget.setCameraLookAt(20, 20, 10)
+            confirm 'You should see the water surface'
+        end
+
         it "simulates the fog" do
             confirm 'You should see a water surface with small waves'
             @ocean_viz.setAirFogDensity(50)
