@@ -102,26 +102,6 @@ ref_ptr<Group> Ocean::getRefNode()
     return ref_node;
 }
 
-void Ocean::setupShader(osg::Node* node)
-{
-    static const char model_vertex[] = "vizkit3d_ocean/shaders/default_scene.vert";
-    static const char model_fragment[] = "vizkit3d_ocean/shaders/default_scene.frag";
-
-    osg::ref_ptr<osg::Program> program =
-        osgOcean::ShaderManager::instance().createProgram(
-                "object_shader", model_vertex, model_fragment, "", "");
-
-    if (program.valid()) {
-        program->addBindAttribLocation("aTangent", 6);
-        node->getOrCreateStateSet()->setAttributeAndModes(program,
-                osg::StateAttribute::ON);
-        node->getStateSet()->addUniform(
-                new osg::Uniform("uOverlayMap", 1));
-        node->getStateSet()->addUniform(
-                new osg::Uniform("uNormalMap", 2));
-    }
-}
-
 ref_ptr<Node> Ocean::createMainNode()
 {
     TextureCubeMap* cubeMap = createCubeMap();
@@ -151,8 +131,6 @@ ref_ptr<Node> Ocean::createMainNode()
     transform->setCullCallback( new CameraTrackCallback );
     transform->addChild(dome);
     scene->addChild(transform);
-
-    setupShader(ref_node);
 
     ref_node->setNodeMask(scene->getNormalSceneMask() |
             scene->getReflectedSceneMask() |
