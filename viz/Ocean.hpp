@@ -28,7 +28,7 @@ namespace vizkit3d
 
 struct OceanParameters
 {
-    OceanParameters() 
+    OceanParameters()
         : surfEndless(true)
         , surfWaveScale(10)
         , surfWaveTopColor(QColor(49, 83, 94))
@@ -43,6 +43,7 @@ struct OceanParameters
         , surfCrestFoamHeight(2.2)
         , surfFoamBottomHeight(2.2)
         , surfFoamTopHeight(2.2)
+        , surfHeight(0)
 
         , airFogColor(199, 226, 255)
         , airFogDensity(12)
@@ -82,6 +83,7 @@ struct OceanParameters
     float     surfCrestFoamHeight;
     float     surfFoamBottomHeight;
     float     surfFoamTopHeight;
+    float     surfHeight;
 
     /// Ocean scene parameters
     QColor    airFogColor;
@@ -126,20 +128,36 @@ public:
 	explicit Ocean(const OceanParameters& ocean_parameters = OceanParameters());
 	~Ocean();
 
-    Q_PROPERTY(QColor airFogColor     READ getAirFogColor     WRITE setAirFogColor);
-    Q_PROPERTY(double airFogDensity   READ getAirFogDensity   WRITE setAirFogDensity);
-    Q_PROPERTY(double waveScale       READ getWaveScale       WRITE setWaveScale);
-    Q_PROPERTY(QColor waveTopColor    READ getWaveTopColor    WRITE setWaveTopColor);
-    Q_PROPERTY(QColor waveBottomColor READ getWaveBottomColor WRITE setWaveBottomColor);
-    Q_PROPERTY(QColor sunColor        READ getSunColor        WRITE setSunColor);
-    Q_PROPERTY(double foamTopHeight   READ getFoamTopHeight   WRITE setFoamTopHeight);
-    Q_PROPERTY(double foamBottomHeight   READ getFoamBottomHeight   WRITE setFoamBottomHeight);
+    Q_PROPERTY(QColor airFogColor       READ getAirFogColor      WRITE setAirFogColor);
+    Q_PROPERTY(double airFogDensity     READ getAirFogDensity    WRITE setAirFogDensity);
+    Q_PROPERTY(QColor uwFogColor        READ getUwFogColor       WRITE setUwFogColor);
+    Q_PROPERTY(double uwFogDensity      READ getUwFogDensity     WRITE setUwFogDensity);
+    Q_PROPERTY(QVector3D uwAttenuation  READ getUwAttenuation    WRITE setUwAttenuation);
+    Q_PROPERTY(QColor uwDiffuseColor    READ getUwDiffuseColor   WRITE setUwDiffuseColor);
+    Q_PROPERTY(double glareAttenuation  READ getGlareAttenuation WRITE setGlareAttenuation);
+    Q_PROPERTY(double waveScale         READ getWaveScale        WRITE setWaveScale);
+    Q_PROPERTY(QColor waveTopColor      READ getWaveTopColor     WRITE setWaveTopColor);
+    Q_PROPERTY(QColor waveBottomColor   READ getWaveBottomColor  WRITE setWaveBottomColor);
+    Q_PROPERTY(QColor sunColor          READ getSunColor         WRITE setSunColor);
+    Q_PROPERTY(double foamTopHeight     READ getFoamTopHeight    WRITE setFoamTopHeight);
+    Q_PROPERTY(double foamBottomHeight  READ getFoamBottomHeight WRITE setFoamBottomHeight);
+    Q_PROPERTY(double surfaceHeight     READ getSurfaceHeight    WRITE setSurfaceHeight);
 
 public slots:
     void setAirFogColor(QColor const& color);
     QColor getAirFogColor() const;
     void setAirFogDensity(double density);
     double getAirFogDensity() const;
+    void setUwFogColor(QColor const& color);
+    QColor getUwFogColor() const;
+    void setUwFogDensity(double density);
+    double getUwFogDensity() const;
+    void setUwAttenuation(QVector3D const& attenuation);
+    QVector3D getUwAttenuation() const;
+    void setUwDiffuseColor(QColor const& color);
+    QColor getUwDiffuseColor() const;
+    void setGlareAttenuation(double density);
+    double getGlareAttenuation() const;
     void setWaveScale(double scale);
     double getWaveScale() const;
     void setWaveTopColor(QColor const& color);
@@ -152,6 +170,8 @@ public slots:
     double getFoamTopHeight() const;
     void setFoamBottomHeight(double height);
     double getFoamBottomHeight() const;
+    void setSurfaceHeight(double height);
+    double getSurfaceHeight() const;
 
 protected:
 	virtual osg::ref_ptr<osg::Node> createMainNode();
@@ -172,8 +192,6 @@ protected:
         void updateSkyDome(vizkit3d_ocean::SkyDome* dome, osgOcean::OceanScene* scene);
 
         osg::ref_ptr<osg::Group> getRefNode();
-
-        void setupShader(osg::Node *node);
 
 private:
 
@@ -198,6 +216,7 @@ private:
         float     surfCrestFoamHeight;
         float     surfFoamBottomHeight;
         float     surfFoamTopHeight;
+        float     surfHeight;
 
         /// Ocean scene parameters
         QColor    airFogColor;

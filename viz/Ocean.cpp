@@ -66,6 +66,7 @@ Ocean::Ocean(const OceanParameters& ocean_parameters)
     surfCrestFoamHeight = ocean_parameters.surfCrestFoamHeight;
     surfFoamBottomHeight = ocean_parameters.surfFoamBottomHeight;
     surfFoamTopHeight = ocean_parameters.surfFoamTopHeight;
+    surfHeight = ocean_parameters.surfHeight;
 
     airFogColor = ocean_parameters.airFogColor;
     airFogDensity = ocean_parameters.airFogDensity;
@@ -101,26 +102,6 @@ ref_ptr<Group> Ocean::getRefNode()
     return ref_node;
 }
 
-void Ocean::setupShader(osg::Node* node)
-{
-    static const char model_vertex[] = "vizkit3d_ocean/shaders/default_scene.vert";
-    static const char model_fragment[] = "vizkit3d_ocean/shaders/default_scene.frag";
-
-    osg::ref_ptr<osg::Program> program =
-        osgOcean::ShaderManager::instance().createProgram(
-                "object_shader", model_vertex, model_fragment, "", "");
-
-    if (program.valid()) {
-        program->addBindAttribLocation("aTangent", 6);
-        node->getOrCreateStateSet()->setAttributeAndModes(program,
-                osg::StateAttribute::ON);
-        node->getStateSet()->addUniform(
-                new osg::Uniform("uOverlayMap", 1));
-        node->getStateSet()->addUniform(
-                new osg::Uniform("uNormalMap", 2));
-    }
-}
-
 ref_ptr<Node> Ocean::createMainNode()
 {
     TextureCubeMap* cubeMap = createCubeMap();
@@ -150,8 +131,6 @@ ref_ptr<Node> Ocean::createMainNode()
     transform->setCullCallback( new CameraTrackCallback );
     transform->addChild(dome);
     scene->addChild(transform);
-
-    setupShader(ref_node);
 
     ref_node->setNodeMask(scene->getNormalSceneMask() |
             scene->getReflectedSceneMask() |
@@ -272,6 +251,7 @@ void Ocean::updateScene(osgOcean::OceanScene* scene)
     scene->setUnderwaterFog(uwFogDensity, qt2osg(uwFogColor) );
     scene->setUnderwaterDiffuse(qt2osg(uwDiffuseColor));
     scene->setUnderwaterAttenuation(qt2osg(uwAttenuation));
+    scene->setOceanSurfaceHeight(surfHeight);
 
     Vec3f sunDir = qt2osg(-sunPosition);
     sunDir.normalize();
@@ -315,8 +295,8 @@ vizkit3d_ocean::SkyDome* Ocean::createSkyDome(TextureCubeMap* cubeMap)
 void Ocean::updateSkyDome(vizkit3d_ocean::SkyDome* dome, OceanScene* scene)
 {
     dome->setNodeMask(
-            scene->getReflectedSceneMask() | 
-            scene->getNormalSceneMask()    | 
+            scene->getReflectedSceneMask() |
+            scene->getNormalSceneMask()    |
             scene->getRefractedSceneMask());
 }
 
@@ -324,7 +304,7 @@ void Ocean::updateMainNode( Node* node )
 {
     osg::Group* group = dynamic_cast<Group*>(node);
     osgOcean::OceanScene* scene = dynamic_cast<osgOcean::OceanScene*>(group->getChild(0));
-    scene->setAboveWaterFog(airFogDensity / 1000, qt2osg(airFogColor) );
+    updateScene(scene);
 
     FFTOceanTechnique* surface =
         dynamic_cast<FFTOceanTechnique*>(scene->getOceanTechnique());
@@ -362,6 +342,66 @@ void Ocean::setAirFogDensity(double density)
 double Ocean::getAirFogDensity() const
 {
     return airFogDensity;
+}
+
+void Ocean::setUwFogColor(QColor const& color)
+{
+    uwFogColor = color;
+    emit propertyChanged("uwFogColor");
+    setDirty();
+}
+
+QColor Ocean::getUwFogColor() const
+{
+    return uwFogColor;
+}
+
+void Ocean::setUwFogDensity(double density)
+{
+    uwFogDensity = density;
+    emit propertyChanged("uwFogDensity");
+    setDirty();
+}
+
+double Ocean::getUwFogDensity() const
+{
+    return uwFogDensity;
+}
+
+void Ocean::setUwAttenuation(QVector3D const& factors)
+{
+    uwAttenuation = factors;
+    emit propertyChanged("uwAttenuation");
+    setDirty();
+}
+
+QVector3D Ocean::getUwAttenuation() const
+{
+    return uwAttenuation;
+}
+
+void Ocean::setUwDiffuseColor(QColor const& factors)
+{
+    uwDiffuseColor = factors;
+    emit propertyChanged("uwDiffuseColor");
+    setDirty();
+}
+
+QColor Ocean::getUwDiffuseColor() const
+{
+    return uwDiffuseColor;
+}
+
+void Ocean::setGlareAttenuation(double density)
+{
+    glareAttenuation = density;
+    emit propertyChanged("glareAttenuation");
+    setDirty();
+}
+
+double Ocean::getGlareAttenuation() const
+{
+    return glareAttenuation;
 }
 
 void Ocean::setWaveScale(double scale)
@@ -434,6 +474,18 @@ void Ocean::setWaveBottomColor(QColor const& color)
 QColor Ocean::getWaveBottomColor() const
 {
     return surfWaveBottomColor;
+}
+
+double Ocean::getSurfaceHeight() const
+{
+    return surfHeight;
+}
+
+void Ocean::setSurfaceHeight(double height)
+{
+    surfHeight = height;
+    emit propertyChanged("surfaceHeight");
+    setDirty();
 }
 
 VizkitQtPlugin(Ocean)
